@@ -27,7 +27,7 @@ $(function() {
             ? $textField.text()
             : $textField.val();
         var query = textRange.length === 0
-            ? text.substring(0, textRange.position).match(/(\S*)\s*$/)[1] // Word before cursor
+            ? text.substring(0, textRange.position).match(/(\w*)\s*$/)[1] // Word before cursor
             : textRange.text;
         
         $input.val(query);
