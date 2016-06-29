@@ -12,11 +12,36 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
+    font-size: 16px;
+}
+
+#emojikey .container {
+    color: #fafafa;
+    text-align: center;
+    padding: 1em;
+    background: white;
+    box-shadow: 0 0 32px black;
+    position: relative;
+    min-width: 340px;
+}
+
+#emojikey input[type=text] {
+    background: inherit;
+    text-align: inherit;
+    margin-top: 0.5em;
+    font-size: 18px;
+    font-weight: 100;
+    border: none;
+}
+
+#emojikey input[type=text]:focus {
+    outline-width: 0;
 }
 
 #emojikey .results {
     list-style: none;
     padding: 0;
+    height: 1.5em;
 }
 
 #emojikey .results li {

@@ -10,7 +10,11 @@ $(function() {
     let $results = $('<ol>').addClass('results');
     let $ui = $('<div>')
         .attr('id', 'emojikey')
-        .append($input, $results)
+        .append(
+            $('<div>')
+                .addClass('container')
+                .append($input, $results)
+        )
         .hide()
         .appendTo($('html'));
 
@@ -74,7 +78,14 @@ $(function() {
             .addClass('selected');
     }
 
-    $input.on('keyup', function(e) {
+    $ui.on('click', function(e) {
+       	if ($ui.is(e.target)) { // Background div only, not descendents
+            hide();
+            e.preventDefault();
+        }
+    });
+
+    $input.on('keydown', function(e) {
         switch (e.which) {
             case 27: // ESC
                 e.preventDefault();
@@ -98,7 +109,9 @@ $(function() {
             default:
                 break;
         }
+    });
 
+    $input.on('keyup', function(e) {
         let query = $input.val();
         if (query === lastQuery) {
             // Same query as last time, nothing to do
