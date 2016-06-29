@@ -25,6 +25,13 @@
     min-width: 340px;
 }
 
+#emojikey .spinner {
+    position: absolute;
+    bottom: 1.5em;
+    left: 0;
+    right: 0;
+}
+
 #emojikey input[type=text] {
     background: inherit;
     text-align: inherit;

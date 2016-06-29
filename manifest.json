@@ -7,7 +7,10 @@
   	"content_scripts": [
     	{
 			"matches": ["<all_urls>"],
-     		"css": ["styles.css"],
+     		"css": [
+				"styles.css",
+				"spinner.css"
+			],
 			"js": [
 				"jquery-3.0.0.min.js",
 				"jquery-textrange.js",

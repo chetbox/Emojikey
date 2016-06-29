@@ -1,22 +1,28 @@
-let MAX_RESULTS = 10;
-
 $(function() {
+
+    let MAX_RESULTS = 10;
+    let SPINNER_HTML = '<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>';
 
     let $input = $('<input>')
         .attr({
             type: 'text',
             placeholder: 'Search for emoji'
         });
+    let $spinner = $(SPINNER_HTML).hide();
     let $results = $('<ol>').addClass('results');
     let $ui = $('<div>')
         .attr('id', 'emojikey')
         .append(
             $('<div>')
                 .addClass('container')
-                .append($input, $results)
+                .append($input, $spinner, $results)
         )
         .hide()
         .appendTo($('html'));
+
+    $(document)
+        .ajaxStart( () => $spinner.show() )
+        .ajaxStop( () => $spinner.hide() );
 
     var $textField = false;
     var textRange = false;
