@@ -117,6 +117,7 @@ $(function() {
             // Same query as last time, nothing to do
             return;
         }
+        lastQuery = query;
 
         $results.empty();
 
@@ -128,8 +129,6 @@ $(function() {
         if (request) {
             request.abort();
         }
-
-        lastQuery = query;
 
         request = $.ajax('http://emojipedia.org/?s=' + encodeURIComponent(query), {
             success: function(emojipediaResultsHtml) {
