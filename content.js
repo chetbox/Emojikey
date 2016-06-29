@@ -127,13 +127,13 @@ $(function() {
 
         $results.empty();
 
-        if (!query) {
-            return;
-        }
-
         // Cancel previous search
         if (request) {
             request.abort();
+        }
+
+        if (!query) {
+            return;
         }
 
         request = $.ajax('http://emojipedia.org/?s=' + encodeURIComponent(query), {
