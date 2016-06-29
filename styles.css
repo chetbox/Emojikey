@@ -1,0 +1,32 @@
+#emojikey {
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    z-index: 99999999999999999999;
+    background: rgba(0,0,0,0.5);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#emojikey .results {
+    list-style: none;
+    padding: 0;
+}
+
+#emojikey .results li {
+    display: inline-block;
+    padding: 0.2em;
+    margin: 0.05em;
+    width: 1.5em;
+    cursor: pointer;
+}
+
+#emojikey .results li.selected {
+    border-bottom: 2px solid blue;
+}
