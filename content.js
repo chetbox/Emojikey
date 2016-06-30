@@ -26,19 +26,32 @@ $(function() {
 
     var $textField = false;
     var textRange = false;
+    var selectionRange = false;
     var request = false;
     var lastQuery = false;
 
     function show(target) {
         $textField = $(target);
+        // TODO: Fix: Sometimes textRange is [textarea] or [input], not object
         textRange = $textField.textrange();
+        selectionRange = window.getSelection().getRangeAt(0).cloneRange();
 
-        let text = $textField.attr('contenteditable')
-            ? $textField.text()
-            : $textField.val();
-        var query = textRange.length === 0
-            ? text.substring(0, textRange.position).match(/(\w*)\s*$/)[1] // Word before cursor
-            : textRange.text;
+        let text = $textField.is(':text, textarea')
+            ? $textField.val()
+            : $textField.text();
+        let selectedText = $textField.is(':text, textarea')
+            ? textRange.text
+            : selectionRange.toString();
+        let cursorPosition = $textField.is(':text, textarea')
+            ? textRange.position
+            : 0; // TODO: find cursor position for contenteditable
+        console.log('selectedText', selectedText);
+        let query = selectedText.length > 0
+            ? selectedText
+            : text.substring(0, cursorPosition).match(/(\w*)\s*$/)[1]; // Word before cursor
+
+        console.log(textRange);
+        console.log(query);
         
         $input.val(query);
         $ui.show();
@@ -52,10 +65,20 @@ $(function() {
     }
 
     function insertText(text) {
-        $textField
-            .textrange('set', textRange.start, textRange.length)
-            .textrange('replace', text)
-            .textrange('set', textRange.start + 1, 0);
+        if ($textField.is(':text, textarea')) {
+            $textField
+                .textrange('set', textRange.start, textRange.length)
+                .textrange('replace', text)
+                .textrange('set', textRange.start + 1, 0);
+        } else {
+            // contenteditable
+            let selection = window.getSelection();
+            console.log(selectionRange);
+            selection.removeAllRanges();
+            selection.addRange(selectionRange);
+            selectionRange.deleteContents();
+            selectionRange.insertNode(document.createTextNode(text));
+        }
     }
 
     function insertSelected() {
