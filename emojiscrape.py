@@ -4,9 +4,12 @@ from lxml import html
 import requests
 from os.path import isfile
 import re
+import json
+
+DATA_CACHE_FILE = 'data/full-emoji-list.html'
+OUTPUT_FILE = 'build/emoji-data.json'
 
 def fetch_emojis():
-    DATA_CACHE_FILE = 'data/full-emoji-list.html'
 
     def http_get():
         print('Fetching emojis')
@@ -112,11 +115,30 @@ def print_prefix_search(query):
     for (p, result) in prefix_search(emojis, index, trie, query):
         print('\t%0.4f\t%s' % (p, emoji_description(result))) 
 
+def save_data(emojis, index):
+    data = {
+        'emojis': emojis,
+        'index': index
+    }
+    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f)
+
+def load_data():
+    if isfile(OUTPUT_FILE):
+        with open(OUTPUT_FILE, encoding='utf-8') as f:
+            return json.load(f)
+
 if __name__ == '__main__':
     from pprint import pprint
-    emoji_html = fetch_emojis()
-    emojis = extract_emojis(emoji_html)
-    index = build_index(emojis)
+    data = load_data()
+    if not data:
+        emoji_html = fetch_emojis()
+        emojis = extract_emojis(emoji_html)
+        index = build_index(emojis)
+        save_data(emojis, index)
+    else:
+        emojis = data['emojis']
+        index = data['index']
     trie = build_trie(all_keywords(emojis))
 
     print_prefix_search('smil')
