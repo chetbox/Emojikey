@@ -57,20 +57,26 @@ def all_keywords(emojis):
     return [keyword for emoji in emojis if emoji for keyword in emoji.get('keywords', [])]
 
 def build_index(emojis):
+    p_keywords = {}
+    for keyword in [keyword for emoji in emojis for keyword in emoji['keywords']]:
+        p_keywords[keyword] = 1.0 / ((1.0 / p_keywords.get(keyword, 1.0)) + 1.0)
+    p_emoji = 1.0 / len(emojis)
+
     index = {}
     for emoji in emojis:
         if not emoji:
             continue
+        p_keyword_given_emoji = (1.0 / len(emoji['keywords'])) if emoji['keywords'] else 0.0
         for keyword in emoji['keywords']:
             keywords = index.get(keyword, {})
-            keywords[emoji['index']] = 0.5 
+            keywords[emoji['index']] = p_keyword_given_emoji * p_emoji / p_keywords[keyword]
             index[keyword] = keywords
     return index
 
 def search(emojis, index, query):
-    results = index.get(query, {})
-    # results.sort(key=lambda p, _: p) # TODO: sort by prob
-    return [(p, emojis[index]) for (index, p) in results.items()]
+    results = list(index.get(query, {}).items())
+    results.sort(key=lambda r: -r[1])
+    return [(p, emojis[index]) for (index, p) in results]
 
 def build_trie(words, current_prefix=''):
     trie = {}
@@ -104,7 +110,7 @@ def emoji_description(emoji):
 def print_prefix_search(query):
     print(query + '|')
     for (p, result) in prefix_search(emojis, index, trie, query):
-        print('\t%0.3f\t%s' % (p, emoji_description(result))) 
+        print('\t%0.4f\t%s' % (p, emoji_description(result))) 
 
 if __name__ == '__main__':
     from pprint import pprint
@@ -113,4 +119,4 @@ if __name__ == '__main__':
     index = build_index(emojis)
     trie = build_trie(all_keywords(emojis))
 
-    print_prefix_search('hal')
+    print_prefix_search('smil')
