@@ -82,7 +82,7 @@ def build_trie(words, current_prefix=''):
     trie = {}
     if any([len(word) == 0 for word in words]):
         trie[None] = current_prefix
-    for char in {word[0] for word in words if len(word) > 0}:
+    for char in {word[0].lower() for word in words if len(word) > 0}:
         next_words = [word[1:] for word in words if len(word) > 0 and word[0] == char]
         trie[char] = build_trie(next_words, current_prefix + char)
     return trie
