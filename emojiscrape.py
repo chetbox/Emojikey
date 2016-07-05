@@ -76,7 +76,7 @@ def build_index(emojis):
 def search(emojis, index, query):
     results = list(index.get(query, {}).items())
     results.sort(key=lambda r: -r[1])
-    return [(p, emojis[index]) for (index, p) in results]
+    return [(p, emojis[int(index)]) for (index, p) in results]
 
 def build_trie(words, current_prefix=''):
     trie = {}
