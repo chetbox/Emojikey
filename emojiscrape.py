@@ -66,8 +66,6 @@ def build_index(emojis):
 
     index = {}
     for (i, emoji) in enumerate(emojis):
-        if not emoji:
-            continue
         p_keyword_given_emoji = (1.0 / len(emoji['keywords'])) if emoji['keywords'] else 0.0
         for keyword in emoji['keywords']:
             keywords = index.get(keyword, {})
