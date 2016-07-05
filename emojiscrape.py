@@ -44,7 +44,6 @@ def emoji_info(tr):
     def code_to_emoji(code):
         return re.sub(r'U\+([0-9A-Z]+) *', lambda m: chr(int(m.groups()[0], 16)), code)
     return {
-        'index': int(first(tr.xpath('td[@class="rchars"]//text()'))) - 1,
         'chars': code_to_emoji(first(tr.xpath('td[@class="code"]//text()'))),
         'code': first(tr.xpath('td[@class="code"]//text()')),
         'name': first(tr.xpath('td[@class="name"]/text()')),
@@ -66,13 +65,13 @@ def build_index(emojis):
     p_emoji = 1.0 / len(emojis)
 
     index = {}
-    for emoji in emojis:
+    for (i, emoji) in enumerate(emojis):
         if not emoji:
             continue
         p_keyword_given_emoji = (1.0 / len(emoji['keywords'])) if emoji['keywords'] else 0.0
         for keyword in emoji['keywords']:
             keywords = index.get(keyword, {})
-            keywords[emoji['index']] = p_keyword_given_emoji * p_emoji / p_keywords[keyword]
+            keywords[i] = p_keyword_given_emoji * p_emoji / p_keywords[keyword]
             index[keyword] = keywords
     return index
 
