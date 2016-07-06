@@ -7,7 +7,7 @@ import re
 import json
 
 DATA_CACHE_FILE = 'data/full-emoji-list.html'
-OUTPUT_FILE = 'build/emoji-data.json'
+OUTPUT_FILE = 'config_resources/emoji-data.json'
 
 def fetch_emojis():
 

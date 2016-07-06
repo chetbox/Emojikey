@@ -159,16 +159,12 @@ $(function() {
             return;
         }
 
-        request = $.ajax('http://emojipedia.org/?s=' + encodeURIComponent(query), {
-            success: function(emojipediaResultsHtml) {
-                let $emojipediaResults = $($.parseHTML(emojipediaResultsHtml))
-                    .find('.search-results li .emoji')
-                    .slice(0, MAX_RESULTS)
-                    .map( (_, el) => $(el).text() )
-                    .map( (_, emoji) => $('<li>').text(emoji).click(selectAndInsert) )
-                    .map( (i, $el) => i === 0 ? $el.addClass('selected') : $el );
-                $results.append($emojipediaResults.get());
-            }
+        chrome.runtime.sendMessage({query: query}, function(response) {
+            let $searchResults = response.results
+                .slice(0, MAX_RESULTS)
+                .map( (result) => $('<li>').text(result.chars).click(selectAndInsert) )
+                .map( ($el, i) => i === 0 ? $el.addClass('selected') : $el );
+            $results.append($searchResults);
         });
     });
 

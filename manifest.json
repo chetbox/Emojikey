@@ -1,21 +1,27 @@
 {
-	"name" : "Emojikey",
-	"manifest_version" : 2,
-	"version" : "0.1",
-	"description" : "Search for and type emojis using Emojipedia",
-	"icons" : { "256" : "emoji.png" },
-  	"content_scripts": [
-    	{
-			"matches": ["<all_urls>"],
-     		"css": [
-				"styles.css",
-				"spinner.css"
-			],
-			"js": [
-				"jquery-3.0.0.min.js",
-				"jquery-textrange.js",
-				"content.js"
-			]
-    	}
+    "name" : "Emojikey",
+    "manifest_version" : 2,
+    "version" : "0.1",
+    "description" : "Search for and type emojis using Emojipedia",
+    "icons" : { "256" : "emoji.png" },
+    "background": {
+        "scripts": [
+            "jquery-3.0.0.min.js",
+            "background.js"
+        ]
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "css": [
+                "styles.css",
+                "spinner.css"
+            ],
+            "js": [
+                "jquery-3.0.0.min.js",
+                "jquery-textrange.js",
+                "content.js"
+            ]
+        }
    ]
 }
