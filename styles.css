@@ -39,6 +39,7 @@
     font-size: 18px;
     font-weight: 100;
     border: none;
+    color: #111;
 }
 
 #emojikey input[type=text]:focus {
@@ -57,6 +58,7 @@
     margin: 0.05em;
     width: 1.5em;
     cursor: pointer;
+    color: #333;
 }
 
 #emojikey .results li.selected {
