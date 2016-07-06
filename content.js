@@ -27,7 +27,6 @@ $(function() {
     var $textField = false;
     var textRange = false;
     var selectionRange = false;
-    var request = false;
     var lastQuery = false;
 
     function show(target) {
@@ -150,16 +149,15 @@ $(function() {
 
         $results.empty();
 
-        // Cancel previous search
-        if (request) {
-            request.abort();
-        }
-
         if (!query) {
             return;
         }
 
         chrome.runtime.sendMessage({query: query}, function(response) {
+            if (query !== lastQuery) {
+                // Query has changed, abort
+                return;
+            }
             let $searchResults = response.results
                 .slice(0, MAX_RESULTS)
                 .map( (result) => $('<li>').text(result.chars).click(selectAndInsert) )
