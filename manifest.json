@@ -14,8 +14,7 @@
         {
             "matches": ["<all_urls>"],
             "css": [
-                "styles.css",
-                "spinner.css"
+                "styles.css"
             ],
             "js": [
                 "jquery-3.0.0.min.js",
