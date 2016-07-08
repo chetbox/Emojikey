@@ -59,17 +59,18 @@ def all_keywords(emojis):
     return [keyword for emoji in emojis if emoji for keyword in emoji.get('keywords', [])]
 
 def build_index(emojis):
-    p_keywords = {}
+    keyword_freq = {}
     for keyword in [keyword for emoji in emojis for keyword in emoji['keywords']]:
-        p_keywords[keyword] = 1.0 / ((1.0 / p_keywords.get(keyword, 1.0)) + 1.0)
+        keyword_freq[keyword] = keyword_freq.get(keyword, 0.0) + 1.0
     p_emoji = 1.0 / len(emojis)
 
     index = {}
     for (i, emoji) in enumerate(emojis):
         p_keyword_given_emoji = (1.0 / len(emoji['keywords'])) if emoji['keywords'] else 0.0
         for keyword in emoji['keywords']:
+            p_keyword = 1.0 / keyword_freq[keyword]
             keywords = index.get(keyword, {})
-            keywords[i] = p_keyword_given_emoji * p_emoji / p_keywords[keyword]
+            keywords[i] = p_keyword_given_emoji * p_emoji / p_keyword
             index[keyword] = keywords
     return index
 
