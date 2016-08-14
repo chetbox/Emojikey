@@ -5,9 +5,13 @@ import requests
 from os.path import isfile
 import re
 import json
+from math import sqrt, log
+from numpy import dot
+from numpy.linalg import norm
 
 DATA_CACHE_FILE = 'data/full-emoji-list.html'
 OUTPUT_FILE = 'config_resources/emoji-data.json'
+STOP_WORDS = {'with', 'of', 'on', 'the'}
 
 def fetch_emojis():
 
@@ -55,29 +59,37 @@ def extract_emojis(emoji_html):
     tree = html.fromstring(emoji_html)
     return [emoji_info(e) for e in each_emoji(tree)]
 
-def all_keywords(emojis):
-    return [keyword for emoji in emojis if emoji for keyword in emoji.get('keywords', [])]
+def terms(emoji):
+    return re.split(r'[ \-]+', emoji['name'].lower()) + emoji['keywords']
 
-def build_index(emojis):
-    keyword_freq = {}
-    for keyword in [keyword for emoji in emojis for keyword in emoji['keywords']]:
-        keyword_freq[keyword] = keyword_freq.get(keyword, 0.0) + 1.0
-    p_emoji = 1.0 / len(emojis)
+def unique(terms):
+    return list(set(terms))
 
-    index = {}
-    for (i, emoji) in enumerate(emojis):
-        p_keyword_given_emoji = (1.0 / len(emoji['keywords'])) if emoji['keywords'] else 0.0
-        for keyword in emoji['keywords']:
-            p_keyword = 1.0 / keyword_freq[keyword]
-            keywords = index.get(keyword, {})
-            keywords[i] = p_keyword_given_emoji * p_emoji / p_keyword
-            index[keyword] = keywords
-    return index
+def remove_stopwords(terms):
+    return [term for term in terms if term not in STOP_WORDS]
 
-def search(emojis, index, query):
-    results = list(index.get(query, {}).items())
-    results.sort(key=lambda r: -r[1])
-    return [(p, emojis[int(index)]) for (index, p) in results]
+def frequencies(terms):
+    term_freqs = {}
+    for term in terms:
+        term_freqs[term] = term_freqs.get(term, 0) + 1
+    return term_freqs
+
+def documents_containing(term, docs):
+    return [doc for doc in docs if term in doc]
+
+def tf_idf(term, docs, doc, term_in_doc_freqs, docs_with_term_freqs):
+    """Based on Elasticsearch scoring model:
+    https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html"""
+    tf = sqrt(term_in_doc_freqs.get(term, 0))
+    idf = 0.01 + log(len(docs) / (docs_with_term_freqs.get(term, 0) + 0.01))
+    norm = 1.0 / sqrt(len(doc))
+    return tf * idf * norm
+
+def document_vector(doc, terms, docs, term_in_doc_freqs, docs_with_term_freqs):
+    return [tf_idf(term, docs, doc, term_in_doc_freqs, docs_with_term_freqs) for term in terms]
+
+def cosine_similarity(a, b):
+    return dot(a, b) / norm(a) / norm(b)
 
 def build_trie(words, current_prefix=''):
     trie = {}
@@ -88,13 +100,12 @@ def build_trie(words, current_prefix=''):
         trie[char] = build_trie(next_words, current_prefix + char)
     return trie
 
-def all_values(trie):
-    value = trie.get(None)
-    subtries = [subtrie for (char, subtrie) in trie.items() if char]
-    return ([value] if value else []) \
-        + [word for subtrie in subtries for word in all_values(subtrie)]
-
 def prefix_search(emojis, index, trie, query):
+    def all_values(trie):
+        value = trie.get(None)
+        subtries = [subtrie for (char, subtrie) in trie.items() if char]
+        return ([value] if value else []) \
+            + [word for subtrie in subtries for word in all_values(subtrie)]
     def find_node(trie, query):
         if not query:
             return trie
@@ -104,39 +115,67 @@ def prefix_search(emojis, index, trie, query):
         return all_values(node) if node else []
     return [result for keyword in keywords(trie, query) for result in search(emojis, index, keyword)]
 
-
 def emoji_description(emoji):
     return emoji['chars'] + ' ' + emoji['name']
 
 def print_prefix_search(query):
     print(query + '|')
     for (p, result) in prefix_search(emojis, index, trie, query):
-        print('\t%0.4f\t%s' % (p, emoji_description(result))) 
+        print('\t%0.4f\t%s' % (p, emoji_description(result)))
 
-def save_data(emojis, index):
-    data = {
-        'emojis': emojis,
-        'index': index
-    }
-    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+def save_data(file, data):
+    with open(file, 'w', encoding='utf-8') as f:
         json.dump(data, f)
 
-def load_data():
-    if isfile(OUTPUT_FILE):
+def load_data(file):
+    if isfile(file):
         with open(OUTPUT_FILE, encoding='utf-8') as f:
             return json.load(f)
 
-if __name__ == '__main__':
-    from pprint import pprint
-    data = load_data()
-    if not data:
-        emoji_html = fetch_emojis()
-        emojis = extract_emojis(emoji_html)
-        index = build_index(emojis)
-        save_data(emojis, index)
-    else:
-        emojis = data['emojis']
-        index = data['index']
-    trie = build_trie(all_keywords(emojis))
+def search(query, unique_terms, docs, docs_with_term_freqs, document_vectors, emojis):
+    # TODO: prefix search
+    query_terms = re.split(r'[\s\-_\.]+', query.lower())
+    query_vector = document_vector(query_terms, unique_terms, docs, frequencies(query_terms), docs_with_term_freqs)
+    results = [(cosine_similarity(query_vector, v), i) for i, v in enumerate(document_vectors)]
+    results = [(score, i) for score, i in results if score] # filter out zeros
+    results.sort(key=lambda r: -r[0])
+    return results
 
-    print_prefix_search('smil')
+def build_db():
+    emoji_html = fetch_emojis()
+    db = {}
+    db['emojis'] = \
+        extract_emojis(emoji_html)
+    db['docs'] = \
+        [remove_stopwords(terms(e)) for e in db['emojis']]
+    db['unique_terms'] = \
+        unique([term for doc in db['docs'] for term in doc])
+    db['docs_with_term_freqs'] = \
+        {term:len(documents_containing(term, db['docs'])) for term in db['unique_terms']}
+    db['document_vectors'] = \
+        [document_vector(doc, db['unique_terms'], db['docs'], frequencies(doc), db['docs_with_term_freqs']) for doc in db['docs']]
+    # db['trie'] = \
+    #     build_trie(['unique_terms'])
+    return db
+
+def repl(fn):
+    try:
+        while True:
+            query = input('> ')
+            fn(query)
+    except EOFError:
+        print('')
+    except KeyboardInterrupt:
+        print('')
+
+if __name__ == '__main__':
+    db = load_data(OUTPUT_FILE)
+    if not db:
+        db = build_db()
+        save_data(OUTPUT_FILE, db)
+
+    def search_and_print_results(query):
+        for score, index in search(query, **db)[:5]:
+            print('\t%f -> %s' % (score, emoji_description(db['emojis'][index])))
+
+    repl(search_and_print_results)
