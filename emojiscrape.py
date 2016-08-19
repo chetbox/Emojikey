@@ -8,6 +8,7 @@ import json
 from math import sqrt, log, pow
 from numpy import dot
 from numpy.linalg import norm
+import time
 
 DATA_CACHE_FILE = 'data/full-emoji-list.html'
 OUTPUT_FILE = 'config_resources/emoji-data.json'
@@ -126,14 +127,15 @@ def load_data(file):
         with open(OUTPUT_FILE, encoding='utf-8') as f:
             return json.load(f)
 
-def search(query_str, unique_terms, n_docs_with_term, document_vectors, trie, emojis):
+def search(query_str, unique_terms, n_docs_with_term, document_vectors, trie, emojis, index):
     query_terms = re.split(r'[\s\-_\.]+', query_str.lower())
     query = {}
     for term in query_terms:
         for prefix_match in prefix_search(trie, term):
             query[prefix_match] = max(query.get(prefix_match, 0.0), pow(len(term) / len(prefix_match), 5))
     query_vector = document_vector(query.keys(), unique_terms, len(document_vectors), query, n_docs_with_term)
-    results = [(cosine_similarity(query_vector, v), i) for i, v in enumerate(document_vectors)]
+    matching_document_vectors = {doc_index:document_vectors[doc_index] for term in query.keys() for doc_index in index[term]}
+    results = [(cosine_similarity(query_vector, v), i) for i, v in matching_document_vectors.items()]
     results = [(score, i) for score, i in results if score] # filter out zeros
     results.sort(key=lambda r: -r[0])
     return results
@@ -141,9 +143,13 @@ def search(query_str, unique_terms, n_docs_with_term, document_vectors, trie, em
 def build_db():
     emoji_html = fetch_emojis()
     db = {}
-    db['emojis'] = extract_emojis(emoji_html) # TODO: only store codepoints for storage efficiency
+    db['emojis'] = \
+        extract_emojis(emoji_html)
     docs = [remove_stopwords(terms(e)) for e in db['emojis']]
-    db['unique_terms'] = unique([term for doc in docs for term in doc])
+    db['unique_terms'] = \
+        unique([term for doc in docs for term in doc])
+    db['index'] = \
+        {term:[i for i, doc in enumerate(docs) if term in doc] for term in db['unique_terms']}
     db['n_docs_with_term'] = \
         {term:len(documents_containing(term, docs)) for term in db['unique_terms']}
     db['document_vectors'] = \
