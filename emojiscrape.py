@@ -5,7 +5,7 @@ import requests
 from os.path import isfile
 import re
 import json
-from math import sqrt, log
+from math import sqrt, log, pow
 from numpy import dot
 from numpy.linalg import norm
 
@@ -77,16 +77,17 @@ def frequencies(terms):
 def documents_containing(term, docs):
     return [doc for doc in docs if term in doc]
 
-def tf_idf(term, docs, doc, term_in_doc_freqs, docs_with_term_freqs):
+def tf_idf(term, n_docs, doc, term_in_doc_freqs, n_docs_with_term):
     """Based on Elasticsearch scoring model:
     https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html"""
+    # print(doc)
     tf = sqrt(term_in_doc_freqs.get(term, 0))
-    idf = 0.01 + log(len(docs) / (docs_with_term_freqs.get(term, 0) + 0.01))
+    idf = 0.01 + log(n_docs / (n_docs_with_term.get(term, 0) + 0.01))
     norm = 1.0 / sqrt(len(doc))
     return tf * idf * norm
 
-def document_vector(doc, terms, docs, term_in_doc_freqs, docs_with_term_freqs):
-    return [tf_idf(term, docs, doc, term_in_doc_freqs, docs_with_term_freqs) for term in terms]
+def document_vector(doc, all_terms, n_docs, term_in_doc_freqs, n_docs_with_term):
+    return [tf_idf(term, n_docs, doc, term_in_doc_freqs, n_docs_with_term) for term in all_terms]
 
 def cosine_similarity(a, b):
     return dot(a, b) / norm(a) / norm(b)
@@ -94,15 +95,15 @@ def cosine_similarity(a, b):
 def build_trie(words, current_prefix=''):
     trie = {}
     if any([len(word) == 0 for word in words]):
-        trie[None] = current_prefix
+        trie[''] = current_prefix
     for char in {word[0].lower() for word in words if len(word) > 0}:
         next_words = [word[1:] for word in words if len(word) > 0 and word[0] == char]
         trie[char] = build_trie(next_words, current_prefix + char)
     return trie
 
-def prefix_search(emojis, index, trie, query):
+def prefix_search(trie, query):
     def all_values(trie):
-        value = trie.get(None)
+        value = trie.get('')
         subtries = [subtrie for (char, subtrie) in trie.items() if char]
         return ([value] if value else []) \
             + [word for subtrie in subtries for word in all_values(subtrie)]
@@ -110,18 +111,11 @@ def prefix_search(emojis, index, trie, query):
         if not query:
             return trie
         return trie and find_node(trie.get(query[0]), query[1:])
-    def keywords(trie, query):
-        node = find_node(trie, query)
-        return all_values(node) if node else []
-    return [result for keyword in keywords(trie, query) for result in search(emojis, index, keyword)]
+    node = find_node(trie, query)
+    return all_values(node) if node else []
 
 def emoji_description(emoji):
     return emoji['chars'] + ' ' + emoji['name']
-
-def print_prefix_search(query):
-    print(query + '|')
-    for (p, result) in prefix_search(emojis, index, trie, query):
-        print('\t%0.4f\t%s' % (p, emoji_description(result)))
 
 def save_data(file, data):
     with open(file, 'w', encoding='utf-8') as f:
@@ -132,10 +126,13 @@ def load_data(file):
         with open(OUTPUT_FILE, encoding='utf-8') as f:
             return json.load(f)
 
-def search(query, unique_terms, docs, docs_with_term_freqs, document_vectors, emojis):
-    # TODO: prefix search
-    query_terms = re.split(r'[\s\-_\.]+', query.lower())
-    query_vector = document_vector(query_terms, unique_terms, docs, frequencies(query_terms), docs_with_term_freqs)
+def search(query_str, unique_terms, n_docs_with_term, document_vectors, trie, emojis):
+    query_terms = re.split(r'[\s\-_\.]+', query_str.lower())
+    query = {}
+    for term in query_terms:
+        for prefix_match in prefix_search(trie, term):
+            query[prefix_match] = max(query.get(prefix_match, 0.0), pow(len(term) / len(prefix_match), 5))
+    query_vector = document_vector(query.keys(), unique_terms, len(document_vectors), query, n_docs_with_term)
     results = [(cosine_similarity(query_vector, v), i) for i, v in enumerate(document_vectors)]
     results = [(score, i) for score, i in results if score] # filter out zeros
     results.sort(key=lambda r: -r[0])
@@ -144,18 +141,15 @@ def search(query, unique_terms, docs, docs_with_term_freqs, document_vectors, em
 def build_db():
     emoji_html = fetch_emojis()
     db = {}
-    db['emojis'] = \
-        extract_emojis(emoji_html)
-    db['docs'] = \
-        [remove_stopwords(terms(e)) for e in db['emojis']]
-    db['unique_terms'] = \
-        unique([term for doc in db['docs'] for term in doc])
-    db['docs_with_term_freqs'] = \
-        {term:len(documents_containing(term, db['docs'])) for term in db['unique_terms']}
+    db['emojis'] = extract_emojis(emoji_html) # TODO: only store codepoints for storage efficiency
+    docs = [remove_stopwords(terms(e)) for e in db['emojis']]
+    db['unique_terms'] = unique([term for doc in docs for term in doc])
+    db['n_docs_with_term'] = \
+        {term:len(documents_containing(term, docs)) for term in db['unique_terms']}
     db['document_vectors'] = \
-        [document_vector(doc, db['unique_terms'], db['docs'], frequencies(doc), db['docs_with_term_freqs']) for doc in db['docs']]
-    # db['trie'] = \
-    #     build_trie(['unique_terms'])
+        [document_vector(doc, db['unique_terms'], len(docs), frequencies(doc), db['n_docs_with_term']) for doc in docs]
+    db['trie'] = \
+        build_trie(db['unique_terms'])
     return db
 
 def repl(fn):
