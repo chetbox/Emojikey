@@ -78,17 +78,17 @@ def frequencies(terms):
 def documents_containing(term, docs):
     return [doc for doc in docs if term in doc]
 
-def tf_idf(term, n_docs, doc, term_in_doc_freqs, n_docs_with_term):
+def tf_idf(term, n_docs, doc_length, term_in_doc_freqs, n_docs_with_term):
     """Based on Elasticsearch scoring model:
     https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html"""
     # print(doc)
     tf = sqrt(term_in_doc_freqs.get(term, 0))
     idf = 0.01 + log(n_docs / (n_docs_with_term.get(term, 0) + 0.01))
-    norm = 1.0 / sqrt(len(doc))
+    norm = 1.0 / sqrt(doc_length)
     return tf * idf * norm
 
-def document_vector(doc, all_terms, n_docs, term_in_doc_freqs, n_docs_with_term):
-    return [tf_idf(term, n_docs, doc, term_in_doc_freqs, n_docs_with_term) for term in all_terms]
+def document_vector(doc_length, all_terms, n_docs, term_in_doc_freqs, n_docs_with_term):
+    return [tf_idf(term, n_docs, doc_length, term_in_doc_freqs, n_docs_with_term) for term in all_terms]
 
 def cosine_similarity(a, b):
     return dot(a, b) / norm(a) / norm(b)
@@ -133,7 +133,7 @@ def search(query_str, unique_terms, n_docs_with_term, document_vectors, trie, em
     for term in query_terms:
         for prefix_match in prefix_search(trie, term):
             query[prefix_match] = max(query.get(prefix_match, 0.0), pow(len(term) / len(prefix_match), 5))
-    query_vector = document_vector(query.keys(), unique_terms, len(document_vectors), query, n_docs_with_term)
+    query_vector = document_vector(len(query.keys()), unique_terms, len(document_vectors), query, n_docs_with_term)
     matching_document_vectors = {doc_index:document_vectors[doc_index] for term in query.keys() for doc_index in index[term]}
     results = [(cosine_similarity(query_vector, v), i) for i, v in matching_document_vectors.items()]
     results = [(score, i) for score, i in results if score] # filter out zeros
@@ -153,7 +153,7 @@ def build_db():
     db['n_docs_with_term'] = \
         {term:len(documents_containing(term, docs)) for term in db['unique_terms']}
     db['document_vectors'] = \
-        [document_vector(doc, db['unique_terms'], len(docs), frequencies(doc), db['n_docs_with_term']) for doc in docs]
+        [document_vector(len(doc), db['unique_terms'], len(docs), frequencies(doc), db['n_docs_with_term']) for doc in docs]
     db['trie'] = \
         build_trie(db['unique_terms'])
     return db
