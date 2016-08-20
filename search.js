@@ -1,3 +1,6 @@
+var IDF_PRIOR = 0.01;
+var PREFIX_MISMATCH_PENALTY = 5;
+
 function dot(a,b) {
  var n = 0, lim = Math.min(a.length,b.length);
  for (var i = 0; i < lim; i++) n += a[i] * b[i];
@@ -10,7 +13,7 @@ function norm(a) {
 
 function tf_idf(term, n_docs, doc_length, term_in_doc_freqs, n_docs_with_term) {
 	var tf = Math.sqrt(term_in_doc_freqs[term] || 0);
-	var idf = 0.01 + Math.log(n_docs / ((n_docs_with_term[term] || 0) + 0.01));
+	var idf = IDF_PRIOR + Math.log(n_docs / ((n_docs_with_term[term] || 0) + IDF_PRIOR));
 	var norm = 1.0 / Math.sqrt(doc_length);
   return tf * idf * norm;
 }
@@ -25,9 +28,21 @@ function cosine_similarity(a, b) {
 	return dot(a, b) / norm(a) / norm(b);
 }
 
-// TODO: implement prefix search
-function prefix_search(trie, query) {
-	return [query];
+function prefix_search(trie, prefix) {
+	function all_values(trie) {
+		var value = trie[''],
+				subtries = $.map(trie, (subtrie, char) => char ? subtrie : []);
+		return (value ? [value] : []).concat(
+			$.map(subtries, all_values)
+		);
+	}
+	function find_node(trie, prefix) {
+		return prefix
+			? trie && find_node(trie[prefix[0]], prefix.substring(1))
+			: trie;
+	}
+	var node = find_node(trie, prefix);
+	return node ? all_values(node) : [];
 }
 
 function search(query_str, db) {
@@ -37,7 +52,7 @@ function search(query_str, db) {
 	.split(/[\s\-_\.]+/)
 	.forEach((term) => {
 		prefix_search(db.trie, term).forEach((prefix_match) => {
-			query[prefix_match] = Math.max((query[prefix_match] || 0), Math.pow(term.length / prefix_match.length, 5));
+			query[prefix_match] = Math.max((query[prefix_match] || 0), Math.pow(term.length / prefix_match.length, PREFIX_MISMATCH_PENALTY));
 		});
 	});
 	var query_vector = document_vector(Object.keys(query).length, db.unique_terms, db.document_vectors.length, query, db.n_docs_with_term);
