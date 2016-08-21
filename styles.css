@@ -3,56 +3,75 @@
     padding: 0;
     position: fixed;
     z-index: 99999999999999999999;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.25);
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    font-size: 16px;
+    display: none;
+    transition: opacity 1s;
 }
 
-#emojikey .container {
-    color: #fafafa;
+#emojikey.emojikey-showing {
+  display: flex;
+}
+
+#emojikey .emojikey-container {
+    background: rgba(255,255,255,0.96);
     text-align: center;
     padding: 1em;
-    background: white;
-    box-shadow: 0 0 32px black;
+    box-shadow: rgba(0,0,0,0.5) 0 0 32px;
     position: relative;
     min-width: 340px;
+    color: #555;
+    font-size: 16px;
+    font-weight: 100;
 }
 
-#emojikey .spinner {
+#emojikey .emojikey-spinner {
     position: absolute;
     bottom: 1.5em;
     left: 0;
     right: 0;
 }
 
+#emojikey hr {
+  height: 0;
+  border: 0;
+  margin: 1em 12px;
+  border-top: 1px solid #eee;
+}
+
 #emojikey input[type=text] {
-    background: inherit;
+    background: transparent;
     text-align: inherit;
     margin-top: 0.5em;
     font-size: 18px;
     font-weight: 100;
     border: none;
-    color: #111;
+    color: inherit;
+    font-weight: inherit;
+}
+
+#emojikey input[type=text]::-webkit-input-placeholder {
+  color: #ccc;
 }
 
 #emojikey input[type=text]:focus {
     outline-width: 0;
 }
 
-#emojikey .results {
+#emojikey .emojikey-results {
     list-style: none;
     padding: 0;
     height: 1.5em;
+    margin: 0.8em 0 1em 0;
 }
 
-#emojikey .results li {
+#emojikey .emojikey-results li {
     display: inline-block;
     padding: 0.2em;
     margin: 0.05em;
@@ -61,6 +80,6 @@
     color: #333;
 }
 
-#emojikey .results li.selected {
+#emojikey .emojikey-results li.emojikey-selected {
     border-bottom: 2px solid blue;
 }

@@ -1,3 +1,5 @@
+'use strict';
+
 $(function() {
 
     let MAX_RESULTS = 10;
@@ -5,17 +7,20 @@ $(function() {
     let $input = $('<input>')
         .attr({
             type: 'text',
-            placeholder: 'Search for emoji'
+            placeholder: 'Search'
         });
-    let $results = $('<ol>').addClass('results');
+    let $results = $('<ol>').addClass('emojikey-results');
     let $ui = $('<div>')
         .attr('id', 'emojikey')
         .append(
             $('<div>')
-                .addClass('container')
-                .append($input, $results)
+                .addClass('emojikey-container')
+                .append(
+                  $input,
+                  $('<hr>'),
+                  $results
+                )
         )
-        .hide()
         .appendTo($('html'));
 
     var $textField = false;
@@ -47,13 +52,13 @@ $(function() {
         console.log(query);
 
         $input.val(query);
-        $ui.show();
+        $ui.addClass('emojikey-showing');
         $input.select();
         // TODO: fix query selection lost after showing results
     }
 
     function hide() {
-        $ui.hide();
+        $ui.removeClass('emojikey-showing');
         $textField.focus();
     }
 
@@ -75,29 +80,29 @@ $(function() {
     }
 
     function insertSelected() {
-        insertText($results.find('.selected').text());
+        insertText($results.find('.emojikey-selected').text());
     }
 
     function selectAndInsert(e) {
-        $results.find('.selected')
-            .removeClass('selected');
+        $results.find('.emojikey-selected')
+            .removeClass('emojikey-selected');
         hide();
-        $(e.target).addClass('selected');
+        $(e.target).addClass('emojikey-selected');
         insertSelected();
     }
 
     function selectNext() {
-        $results.find('.selected:not(:last-child)')
-            .removeClass('selected')
+        $results.find('.emojikey-selected:not(:last-child)')
+            .removeClass('emojikey-selected')
             .next()
-            .addClass('selected');
+            .addClass('emojikey-selected');
     }
 
     function selectPrevious() {
-        $results.find('.selected:not(:first-child)')
-            .removeClass('selected')
+        $results.find('.emojikey-selected:not(:first-child)')
+            .removeClass('emojikey-selected')
             .prev()
-            .addClass('selected');
+            .addClass('emojikey-selected');
     }
 
     $ui.on('click', function(e) {
@@ -155,7 +160,7 @@ $(function() {
             let $searchResults = response.results
                 .slice(0, MAX_RESULTS)
                 .map( (result) => $('<li>').text(result.chars).click(selectAndInsert) )
-                .map( ($el, i) => i === 0 ? $el.addClass('selected') : $el );
+                .map( ($el, i) => i === 0 ? $el.addClass('emojikey-selected') : $el );
             $results.append($searchResults);
         });
     });
