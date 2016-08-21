@@ -45,7 +45,7 @@ $(function() {
 
         console.log(textRange);
         console.log(query);
-        
+
         $input.val(query);
         $ui.show();
         $input.select();
@@ -62,7 +62,7 @@ $(function() {
             $textField
                 .textrange('set', textRange.start, textRange.length)
                 .textrange('replace', text)
-                .textrange('set', textRange.start + 1, 0);
+                .textrange('set', textRange.start + text.length, 0);
         } else {
             // contenteditable
             let selection = window.getSelection();
@@ -82,7 +82,7 @@ $(function() {
         $results.find('.selected')
             .removeClass('selected');
         hide();
-        $(e.target).addClass('selected');        
+        $(e.target).addClass('selected');
         insertSelected();
     }
 
