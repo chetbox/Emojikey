@@ -59,8 +59,8 @@ def emoji_info(tr):
         'keywords': tr.xpath('td[@class="name"]/a[@target="annotate"]/text()'),
         'age': year(first(tr.xpath('td[@class="age"]//text()')))
     }
-    if len(info['chars']) > 1 and MODIFIERS_INDEX.get(info['chars'][-1], False):
-        info['modifiers'] = info['chars'][-1]
+    while len(info['chars']) > 1 and MODIFIERS_INDEX.get(info['chars'][-1], False):
+        info['modifiers'] = info.get('modifiers', '') + info['chars'][-1]
         info['chars'] = info['chars'][:-1]
     return info
 
