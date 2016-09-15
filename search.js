@@ -1,5 +1,5 @@
 var IDF_PRIOR = 0.01;
-var PREFIX_MISMATCH_PENALTY = 5;
+var PREFIX_MISMATCH_PENALTY = 2;
 
 function dot(a,b) {
  var n = 0, lim = Math.min(a.length,b.length);
@@ -52,7 +52,7 @@ function search(query_str, db) {
 	.split(/[\s\-_\.]+/)
 	.forEach((term) => {
 		prefix_search(db.trie, term).forEach((prefix_match) => {
-			query[prefix_match] = Math.max((query[prefix_match] || 0), Math.pow(term.length / prefix_match.length, PREFIX_MISMATCH_PENALTY));
+			query[prefix_match] = Math.max((query[prefix_match] || 0), Math.pow(1 / (prefix_match.length - term.length + 1), PREFIX_MISMATCH_PENALTY));
 		});
 	});
 	var query_vector = document_vector(Object.keys(query).length, db.unique_terms, db.document_vectors.length, query, db.n_docs_with_term);

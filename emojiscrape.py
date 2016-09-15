@@ -139,7 +139,7 @@ def search(query_str, unique_terms, n_docs_with_term, document_vectors, trie, em
     query = {}
     for term in query_terms:
         for prefix_match in prefix_search(trie, term):
-            query[prefix_match] = max(query.get(prefix_match, 0.0), pow(len(term) / len(prefix_match), 5))
+            query[prefix_match] = max(query.get(prefix_match, 0.0), pow(1.0 / (len(prefix_match) - len(term) + 1), 2))
     query_vector = document_vector(len(query.keys()), unique_terms, len(document_vectors), query, n_docs_with_term)
     matching_document_vectors = {doc_index:document_vectors[doc_index] for term in query.keys() for doc_index in index[term]}
     results = [(cosine_similarity(query_vector, v), i) for i, v in matching_document_vectors.items()]
