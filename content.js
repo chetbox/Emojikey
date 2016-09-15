@@ -70,12 +70,13 @@ $(function() {
                 .textrange('set', textRange.start + text.length, 0);
         } else {
             // contenteditable
-            let selection = window.getSelection();
-            console.log(selectionRange);
-            selection.removeAllRanges();
-            selection.addRange(selectionRange);
             selectionRange.deleteContents();
             selectionRange.insertNode(document.createTextNode(text));
+
+            let selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(selectionRange);
+            selection.collapseToEnd();
         }
     }
 
