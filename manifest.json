@@ -1,7 +1,7 @@
 {
     "name" : "Emojikey",
     "manifest_version" : 2,
-    "version" : "0.1",
+    "version" : "0.2",
     "description" : "Search for and type emojis using Emojipedia",
     "icons" : { "256" : "heart-eyes.png" },
     "background": {
