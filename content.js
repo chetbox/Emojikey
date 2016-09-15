@@ -43,13 +43,9 @@ $(function() {
         let cursorPosition = $textField.is(':text, textarea')
             ? textRange.position
             : 0; // TODO: find cursor position for contenteditable
-        console.log('selectedText', selectedText);
         let query = selectedText.length > 0
             ? selectedText
             : text.substring(0, cursorPosition).match(/(\w*)\s*$/)[1]; // Word before cursor
-
-        console.log(textRange);
-        console.log(query);
 
         $input.val(query);
         $ui.addClass('emojikey-showing');
