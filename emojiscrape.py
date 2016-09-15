@@ -13,6 +13,10 @@ import time
 DATA_CACHE_FILE = 'data/full-emoji-list.html'
 OUTPUT_FILE = 'config_resources/emoji-data.json'
 STOP_WORDS = {'with', 'of', 'on', 'the'}
+MODIFIERS = {
+    'fitzpatrick': ['\U0001f3fb', '\U0001f3fc', '\U0001f3fd', '\U0001f3fe', '\U0001f3ff']
+}
+MODIFIERS_INDEX = {modifier:mtype for mtype, modifiers in MODIFIERS.items() for modifier in modifiers}
 
 def fetch_emojis():
 
@@ -48,13 +52,17 @@ def emoji_info(tr):
         return re.match(r'[0-9]{4}', s).group()
     def code_to_emoji(code):
         return re.sub(r'U\+([0-9A-Z]+) *', lambda m: chr(int(m.groups()[0], 16)), code)
-    return {
+    info = {
         'chars': code_to_emoji(first(tr.xpath('td[@class="code"]//text()'))),
         'code': first(tr.xpath('td[@class="code"]//text()')),
         'name': first(tr.xpath('td[@class="name"]/text()')),
         'keywords': tr.xpath('td[@class="name"]/a[@target="annotate"]/text()'),
         'age': year(first(tr.xpath('td[@class="age"]//text()')))
     }
+    if len(info['chars']) > 1 and MODIFIERS_INDEX.get(info['chars'][-1], False):
+        info['modifiers'] = info['chars'][-1]
+        info['chars'] = info['chars'][:-1]
+    return info
 
 def extract_emojis(emoji_html):
     tree = html.fromstring(emoji_html)
@@ -81,7 +89,6 @@ def documents_containing(term, docs):
 def tf_idf(term, n_docs, doc_length, term_in_doc_freqs, n_docs_with_term):
     """Based on Elasticsearch scoring model:
     https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html"""
-    # print(doc)
     tf = sqrt(term_in_doc_freqs.get(term, 0))
     idf = 0.01 + log(n_docs / (n_docs_with_term.get(term, 0) + 0.01))
     norm = 1.0 / sqrt(doc_length)
@@ -144,7 +151,7 @@ def build_db():
     emoji_html = fetch_emojis()
     db = {}
     db['emojis'] = \
-        extract_emojis(emoji_html)
+        [emoji for emoji in extract_emojis(emoji_html) if not emoji.get('modifiers', False)]
     docs = [remove_stopwords(terms(e)) for e in db['emojis']]
     db['unique_terms'] = \
         unique([term for doc in docs for term in doc])
