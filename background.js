@@ -1,6 +1,6 @@
-$.getJSON('/config_resources/emoji-data.json', function(db) {
+$.getJSON('/config_resources/emoji-data.json', db => {
   chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
+    (request, sender, sendResponse) => {
       let results = search(request.query, db);
       sendResponse({results: results});
   });

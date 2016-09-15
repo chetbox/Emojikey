@@ -1,6 +1,6 @@
 'use strict';
 
-$(function() {
+$(() => {
 
     let MAX_RESULTS = 10;
 
@@ -102,14 +102,14 @@ $(function() {
             .addClass('emojikey-selected');
     }
 
-    $ui.on('click', function(e) {
+    $ui.on('click', e => {
        	if ($ui.is(e.target)) { // Background div only, not descendents
             hide();
             e.preventDefault();
         }
     });
 
-    $input.on('keydown', function(e) {
+    $input.on('keydown', e => {
         switch (e.which) {
             case 27: // ESC
                 e.preventDefault();
@@ -135,7 +135,7 @@ $(function() {
         }
     });
 
-    $input.on('keyup', function(e) {
+    $input.on('keyup', (e) => {
         let query = $input.val();
         if (query === lastQuery) {
             // Same query as last time, nothing to do
@@ -149,7 +149,7 @@ $(function() {
             return;
         }
 
-        chrome.runtime.sendMessage({query: query}, function(response) {
+        chrome.runtime.sendMessage({query: query}, response => {
             if (query !== lastQuery) {
                 // Query has changed, abort
                 return;
@@ -162,7 +162,7 @@ $(function() {
         });
     });
 
-    $(document).on('keydown', ':text, textarea, [contenteditable=true]', function(e) {
+    $(document).on('keydown', ':text, textarea, [contenteditable=true]', e => {
         if (e.metaKey && e.which === 69) { // Meta + E
             if ($ui.is(':visible')) {
                 hide();
