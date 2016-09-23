@@ -16,6 +16,7 @@ $(() => {
             $('<div>')
                 .addClass('emojikey-container')
                 .append(
+                  $('<span>').addClass('search-label').text('\uD83D\uDD0D'),
                   $input,
                   $('<hr>'),
                   $results

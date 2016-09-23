@@ -1,0 +1,110 @@
+<!DOCTYPE>
+<html>
+  <head>
+    <title>Emoikey</title>
+    <style>
+      * {
+        font-family: 'Helvetica', sans-serif;
+        font-weight: 100;
+      }
+      body {
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      #tryme {
+        margin: 1.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      #tryme input {
+        font-size: 2em;
+      }
+      p {
+        color: #777;
+      }
+      .key {
+        text-align: center;
+        display: inline-block;
+        min-width: 1em;
+        height: 1em;
+        padding: 1em;
+        border-radius: 0.33em;
+        background: #333;
+        color: #ddd;
+        font-family: 'Helvetica Neue', sans-serif;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.33);
+        margin: 0 0.5em;
+        font-weight: normal;
+        transition: color 150ms, background 150ms, box-shadow 150ms;
+      }
+      .key.pressed {
+        color: #c7c7c7;
+        background: #272727;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.33);
+      }
+      ul#features {
+        list-style: none;
+        padding-left: 0;
+        color: #777;
+      }
+      ul#features li {
+        margin-bottom: 0.25em;
+      }
+      ul#features li::before {
+        content: '\026AA';
+        margin-right: 0.75em;
+      }
+      ul#features li:nth-child(1)::before {
+        content: '\026A1';
+      }
+      ul#features li:nth-child(2)::before {
+        content: '\026F5';
+      }
+      ul#features li:nth-child(3)::before {
+        content: '\01F30E';
+      }
+    </style>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+  </head>
+  <body>
+    <h1>Emojikey</h1>
+    <div id="tryme">
+      <input type="text" />
+      <p>
+        <span class="key meta">Ctrl</span> + <span class="key letter">E</span>
+      </p>
+    </div>
+    <ul id="features">
+      <li>Lightning fast</li>
+      <li>Works offline</li>
+      <li>On any website</li>
+    </ul>
+  </body>
+  <script>
+    let metaKey = document.querySelector('.meta.key');
+    let textField = document.querySelector('input[type=text]');
+    if (navigator.platform.substring(0, 3) === 'Mac') {
+      metaKey.innerText = '\u2318';
+    }
+
+    textField.addEventListener('keydown', e => {
+      if (e.metaKey && metaKey.className.indexOf('pressed') === -1) {
+        metaKey.className += ' pressed';
+      }
+    });
+    textField.addEventListener('keyup', e => {
+      if (!e.metaKey) {
+        metaKey.className = metaKey.className.replace(/ *\bpressed\b/g, '');
+      }
+    });
+    textField.focus();
+  </script>
+  <script src="jquery-3.0.0.min.js"></script>
+  <script src="jquery-textrange.js"></script>
+  <script src="content.js"></script>
+</html>

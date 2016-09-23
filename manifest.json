@@ -1,7 +1,7 @@
 {
     "name" : "Emojikey",
     "manifest_version" : 2,
-    "version" : "0.2.1",
+    "version" : "0.3.0",
     "description" : "Search for and type emojis",
     "icons" : { "256" : "heart-eyes.png" },
     "background": {
@@ -23,5 +23,6 @@
                 "content.js"
             ]
         }
-   ]
+   ],
+   "content_security_policy": "object-src 'self'; script-src 'self' 'sha256-3uVIOUwpoPA7BJJUdaKXxOSGN+EgMLRnYEeSibRayN4=';"
 }

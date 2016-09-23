@@ -25,9 +25,10 @@
     padding: 1em;
     box-shadow: rgba(0,0,0,0.5) 0 0 32px;
     position: relative;
-    min-width: 340px;
+    min-width: 360px;
     color: #555;
-    font-size: 16px;
+    font-family: 'Helvetica', sans-serif;
+    font-size: 24px;
     font-weight: 100;
 }
 
@@ -45,9 +46,17 @@
   border-top: 1px solid #eee;
 }
 
+#emojikey .search-label {
+  position: absolute;
+  left: 1.5em;
+  top: 1.25em;
+}
+
 #emojikey input[type=text] {
+    width: 100%;
+    padding-left: 3em;
+    text-align: left;
     background: transparent;
-    text-align: inherit;
     margin-top: 0.5em;
     font-size: 18px;
     font-weight: 100;
@@ -68,18 +77,19 @@
     list-style: none;
     padding: 0;
     height: 1.5em;
-    margin: 0.8em 0 1em 0;
+    margin: 0.8em 0 0.6em 0;
 }
 
 #emojikey .emojikey-results li {
     display: inline-block;
-    padding: 0.2em;
-    margin: 0.05em;
+    padding-bottom: 0.25em;
     width: 1.5em;
     cursor: pointer;
     color: #333;
+    border-bottom: 2px solid transparent;
+    transition: border-color 150ms;
 }
 
 #emojikey .emojikey-results li.emojikey-selected {
-    border-bottom: 2px solid blue;
+    border-color: #59f;
 }
