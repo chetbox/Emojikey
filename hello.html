@@ -8,11 +8,13 @@
         font-weight: 100;
       }
       body {
+        background: #fff;
         font-size: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-direction: column;
+        padding-bottom: 3em;
       }
       #tryme {
         margin: 1.5em;
@@ -68,6 +70,24 @@
       ul#features li:nth-child(3)::before {
         content: '\01F30E';
       }
+      #author {
+        display: block;
+        background: #fff;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 0.75em;
+        color: #aaa;
+        margin: 0;
+        padding-bottom: 1em;
+        box-shadow: 0 -1em 1em #fff;
+      }
+      #author a {
+        text-decoration: none;
+        color: inherit;
+      }
     </style>
     <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
@@ -84,6 +104,9 @@
       <li>Works offline</li>
       <li>On any website</li>
     </ul>
+    <p id="author">
+      <a target="_blank" href="https://github.com/chetbox/Emojikey">Made with &#x2665;</a> by <a target="_blank" href="https://twitter.com/chetbox">@chetbox</a>
+    </p>
   </body>
   <script>
     let metaKey = document.querySelector('.meta.key');
