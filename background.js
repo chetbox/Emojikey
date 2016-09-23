@@ -6,9 +6,15 @@ $.getJSON('/config_resources/emoji-data.json', db => {
   });
 });
 
+let installedVersion = localStorage['version'];
+
 // Open hello.html when extension installed
-chrome.runtime.onInstalled.addListener(function (object) {
+if (!installedVersion) {
+  chrome.runtime.onInstalled.addListener(function (object) {
     chrome.tabs.create({
       url: chrome.extension.getURL('hello.html')
     });
-});
+  });
+}
+
+localStorage['version'] = chrome.app.getDetails().version;
