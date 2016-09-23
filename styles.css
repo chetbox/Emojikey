@@ -88,8 +88,15 @@
     color: #333;
     border-bottom: 2px solid transparent;
     transition: border-color 150ms;
+    animation-name: fade-in;
+    animation-duration: 150ms;
 }
 
 #emojikey .emojikey-results li.emojikey-selected {
     border-color: #59f;
+}
+
+@keyframes fade-in {
+    0%   {opacity: 0;}
+    100% {opacity: 1;}
 }
