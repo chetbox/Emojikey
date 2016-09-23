@@ -164,6 +164,7 @@ $(() => {
 
     $(document).on('keydown', ':text, textarea, [contenteditable=true]', e => {
         if (e.metaKey && e.which === 69) { // Meta + E
+            e.preventDefault();
             if ($ui.is(':visible')) {
                 hide();
             } else {
