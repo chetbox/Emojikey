@@ -46,9 +46,17 @@
   border-top: 1px solid #eee;
 }
 
+#emojikey .search-label {
+  position: absolute;
+  left: 1.5em;
+  top: 1.25em;
+}
+
 #emojikey input[type=text] {
+    width: 100%;
+    padding-left: 3em;
+    text-align: left;
     background: transparent;
-    text-align: inherit;
     margin-top: 0.5em;
     font-size: 18px;
     font-weight: 100;
