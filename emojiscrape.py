@@ -11,7 +11,7 @@ from numpy.linalg import norm
 import time
 
 DATA_CACHE_FILE = 'data/full-emoji-list.html'
-OUTPUT_FILE = 'config_resources/emoji-data.json'
+OUTPUT_FILE = 'extension/config_resources/emoji-data.json'
 STOP_WORDS = {'with', 'of', 'on', 'the'}
 MODIFIERS = {
     'fitzpatrick': ['\U0001f3fb', '\U0001f3fc', '\U0001f3fd', '\U0001f3fe', '\U0001f3ff']
@@ -176,13 +176,18 @@ def repl(fn):
         print('')
 
 if __name__ == '__main__':
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description='Fetch emoji information and make it searchable')
+    parser.add_argument('--repl', action='store_const', const='repl', default=False, help='Run a REPL to search for emoji on the console')
+    args = parser.parse_args()
+
     db = load_data(OUTPUT_FILE)
     if not db:
         db = build_db()
         save_data(OUTPUT_FILE, db)
 
-    def search_and_print_results(query):
-        for score, index in search(query, **db)[:5]:
-            print('\t%f -> %s' % (score, emoji_description(db['emojis'][index])))
-
-    repl(search_and_print_results)
+    if args.repl:
+        def search_and_print_results(query):
+            for score, index in search(query, **db)[:5]:
+                print('\t%f -> %s' % (score, emoji_description(db['emojis'][index])))
+        repl(search_and_print_results)
