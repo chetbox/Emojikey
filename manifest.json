@@ -1,28 +1,37 @@
 {
-    "name" : "Emojikey",
-    "manifest_version" : 2,
-    "version" : "0.3.0",
-    "description" : "Search for and type emojis",
-    "icons" : { "256" : "heart-eyes.png" },
-    "background": {
-        "scripts": [
-            "jquery-3.0.0.min.js",
-            "search.js",
-            "background.js"
-        ]
-    },
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "css": [
-                "styles.css"
-            ],
-            "js": [
-                "jquery-3.0.0.min.js",
-                "jquery-textrange.js",
-                "content.js"
-            ]
-        }
-   ],
-   "content_security_policy": "object-src 'self'; script-src 'self' 'sha256-3uVIOUwpoPA7BJJUdaKXxOSGN+EgMLRnYEeSibRayN4=';"
+  "name" : "Emojikey",
+  "manifest_version" : 2,
+  "version" : "0.4.1",
+  "description" : "Search for and type emojis",
+  "icons" : { "256" : "heart-eyes.png" },
+  "background": {
+    "scripts": [
+      "jquery-3.0.0.min.js",
+      "search.js",
+      "background.js"
+    ]
+  },
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "jquery-3.0.0.min.js",
+        "jquery-textrange.js",
+        "content.js"
+      ]
+    }
+  ],
+  "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+       "windows": "Ctrl+Shift+E",
+       "chromeos": "Ctrl+Shift+E",
+       "linux": "Ctrl+Shift+E",
+       "mac": "Command+E"
+      }
+    }
+  }
 }
