@@ -1,27 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Emojikey playground</title>
+        <title>Emojikey test page</title>
     </head>
 
     <body>
         <h1>Emojikey test page</h1>
         <div>
-            <h2>An <code>&lt;input&gt;</code> field</h2>
-            <input type="text" />
+            <h2><code>&lt;input&gt;</code></h2>
+            <input type="text" autofocus />
         </div>
         <div>
-            <h2>A <code>&lt;textarea&gt;</code></h2>
+            <h2><code>&lt;textarea&gt;</code></h2>
             <textarea></textarea>
         </div>
-        <div contenteditable="true">
-            <h2>This is a <code>contenteditable=true</code> element</h2>
-            <p>Feel free to edit me.</p>
+        <h2><code>&lt;div contenteditable=true&gt;</code>...<code>&lt;/div&gt;</code></h2>
+        <div contenteditable="true" style="border: 1px solid #aaa; display: inline-block; min-width: 10em;">
+            <p>Feel <i>free</i> to <b>edit</b> me.</p>
         </div>
     </body>
-
-    <script>
-        document.querySelector('input[type=text]').focus();
-    </script>
-
 </html>
