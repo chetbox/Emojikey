@@ -89,15 +89,12 @@
         color: inherit;
       }
     </style>
-    <link rel="stylesheet" type="text/css" href="styles.css" />
   </head>
   <body>
     <h1>Emojikey</h1>
     <div id="tryme">
       <input type="text" />
-      <p>
-        <span class="key meta">Ctrl</span> + <span class="key letter">E</span>
-      </p>
+      <div id="shortcuts"></div>
     </div>
     <ul id="features">
       <li>Lightning fast</li>
@@ -108,26 +105,8 @@
       <a target="_blank" href="https://github.com/chetbox/Emojikey">Made with &#x2665;</a> by <a target="_blank" href="https://twitter.com/chetbox">@chetbox</a>
     </p>
   </body>
-  <script>
-    let metaKey = document.querySelector('.meta.key');
-    let textField = document.querySelector('input[type=text]');
-    if (navigator.platform.substring(0, 3) === 'Mac') {
-      metaKey.innerText = '\u2318';
-    }
-
-    textField.addEventListener('keydown', e => {
-      if (e.metaKey && metaKey.className.indexOf('pressed') === -1) {
-        metaKey.className += ' pressed';
-      }
-    });
-    textField.addEventListener('keyup', e => {
-      if (!e.metaKey) {
-        metaKey.className = metaKey.className.replace(/ *\bpressed\b/g, '');
-      }
-    });
-    textField.focus();
-  </script>
   <script src="jquery-3.0.0.min.js"></script>
   <script src="jquery-textrange.js"></script>
+  <script src="hello.js"></script>
   <script src="content.js"></script>
 </html>
