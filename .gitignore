@@ -1,4 +1,5 @@
 .DS_Store
 data/
-config_resources/
-
+extension/config_resources/
+Emojikey.pem
+extension.crx
