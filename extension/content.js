@@ -5,6 +5,7 @@ function insertText(text) {
 
   if (!$textField.is(':text, textarea, [contenteditable=true]')) {
     console.warn('No text field selected to insert "' + text + '"');
+    return;
   }
 
   if ($textField.is(':text, textarea')) {
