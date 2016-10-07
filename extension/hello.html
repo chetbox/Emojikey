@@ -16,6 +16,15 @@
         flex-direction: column;
         padding-bottom: 3em;
       }
+      h1 i.heart {
+        display: inline-block;
+        background: url('heart_256.png') no-repeat;
+        background-size: contain;
+        height: 1.5em;
+        width: 1.5em;
+        position: relative;
+        top: 0.36em;
+      }
       #tryme {
         margin: 1.5em;
         display: flex;
@@ -91,7 +100,11 @@
     </style>
   </head>
   <body>
-    <h1>Emojikey</h1>
+    <h1>
+      <i class="heart"></i>
+      Emojikey
+      <i class="heart"></i>
+    </h1>
     <div id="tryme">
       <input type="text" />
       <div id="shortcuts"></div>

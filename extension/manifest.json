@@ -1,9 +1,11 @@
 {
   "name" : "Emojikey",
   "manifest_version" : 2,
-  "version" : "0.4.1",
+  "version" : "0.4.2",
   "description" : "Search for and type emojis",
-  "icons" : { "256" : "heart-eyes.png" },
+  "icons" : {
+    "256" : "heart_256.png"
+  },
   "background": {
     "scripts": [
       "jquery-3.0.0.min.js",
@@ -12,7 +14,11 @@
     ]
   },
   "browser_action": {
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "19": "heart_grey_19.png",
+      "38": "heart_grey_38.png"
+    }
   },
   "content_scripts": [
     {
