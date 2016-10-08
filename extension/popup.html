@@ -26,6 +26,34 @@
         right: 0;
       }
 
+      div#status {
+        font-size: 0.6em;
+        color: #999;
+        padding-left: 3.1em;
+        margin-top: 1.5em;
+      }
+      div#status:not(.error) {
+        display: none;
+      }
+      div#status.error {
+        color: #f88;
+      }
+      div#status::before {
+        position: relative;
+        right: 2.5em;
+        content: ' ';
+        width: 0;
+        display: inline-block;
+      }
+      div#status.error::before {
+        content: '\02757';
+      }
+
+      div#status a {
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
       hr {
         height: 0;
         border: 0;
@@ -106,6 +134,7 @@
       <input type="text" placeholder="Search" autofocus>
       <hr>
       <ol class="emojikey-results"></ol>
+      <div id="status"></div>
     </div>
   </body>
   <script src="jquery-3.0.0.min.js"></script>

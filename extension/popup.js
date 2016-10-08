@@ -4,8 +4,37 @@ let MAX_RESULTS = 10;
 let $emojikey = $('#emojikey');
 let $input = $emojikey.find('input[type=text]');
 let $results = $emojikey.find('.emojikey-results');
+let $status = $emojikey.find('#status');
 
 var lastQuery = false;
+
+function showErrorStatus(message) {
+  $status.addClass('error').append(message);
+}
+
+function clearStatus() {
+  $status.text('').removeClass('error');
+}
+
+function handleError(e, messageToDisplay) {
+  _gaq.push(['_trackEvent', 'error', e.message, e.filename + ': ' + e.lineno]);
+  console.error(e);
+
+  clearStatus();
+  showErrorStatus(messageToDisplay || e.message);
+}
+
+function refreshTab() {
+  clearStatus();
+  chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+    if (tabs.length) {
+      chrome.tabs.reload(tabs[0].id);
+    } else {
+      handleError(new Error('No active tab to refresh'));
+    }
+  });
+  $input.focus();
+}
 
 function selectNext() {
   $results.find('.emojikey-selected:not(:last-child)')
@@ -55,10 +84,21 @@ function getSelected() {
 }
 
 function insertAndClose() {
+  clearStatus();
   let message = {insertText: getSelected().text()};
   chrome.tabs.query({active: true, currentWindow: true}, tabs => {
-    chrome.tabs.sendMessage(tabs[0].id, message);
-    window.close();
+    chrome.tabs.sendMessage(tabs[0].id, message, success => {
+      console.log('success', success);
+      if (success) { // The content script always returns true
+        window.close();
+      } else {
+        handleError(chrome.runtime.lastError, [
+          'Please ',
+          $('<a>').text('refresh').on('click', refreshTab),
+          ' the page']
+        );
+      }
+    });
   });
 }
 
