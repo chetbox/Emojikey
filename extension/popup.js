@@ -24,20 +24,24 @@ function selectPrevious() {
 $input.on('keydown', e => {
   switch (e.which) {
     case 27: // ESC
+      _gaq.push(['_trackEvent', 'keyboard', 'cancel', 'esc']);
       e.preventDefault();
       window.close();
       break;
     case 13: // Return
+      _gaq.push(['_trackEvent', 'keyboard', 'select', 'return']);
       e.preventDefault();
       insertAndClose();
       break;
     case 37: // Left arrow
     case 38: // Up arrow
+      _gaq.push(['_trackEvent', 'keyboard', 'move', 'left']);
       selectPrevious();
       e.preventDefault();
       break;
     case 39: // Right arrow
     case 40: // Down arrow
+      _gaq.push(['_trackEvent', 'keyboard', 'move', 'right']);
       selectNext();
       e.preventDefault();
       break;
@@ -47,11 +51,11 @@ $input.on('keydown', e => {
 });
 
 function getSelected() {
-  return $results.find('.emojikey-selected').text();
+  return $results.find('.emojikey-selected');
 }
 
 function insertAndClose() {
-  let message = {insertText: getSelected()};
+  let message = {insertText: getSelected().text()};
   chrome.tabs.query({active: true, currentWindow: true}, tabs => {
     chrome.tabs.sendMessage(tabs[0].id, message);
   });
@@ -59,6 +63,8 @@ function insertAndClose() {
 }
 
 $input.on('keyup', (e) => {
+   _gaq.push(['_trackEvent', 'keyboard', 'keyup']);
+
   let query = $input.val();
   if (query === lastQuery) {
     // Same query as last time, nothing to do
@@ -79,7 +85,12 @@ $input.on('keyup', (e) => {
     }
     let $searchResults = response.results
       .slice(0, MAX_RESULTS)
-      .map( (result) => $('<li>').text(result.chars).click(insertAndClose) )
+      .map(
+        result => $('<li>').text(result.chars).click(() => {
+          _gaq.push(['_trackEvent', 'mouse', 'select', null, getSelected().index()]);
+          insertAndClose();
+        })
+      )
       .map( ($el, i) => i === 0 ? $el.addClass('emojikey-selected') : $el );
     $results.append($searchResults);
   });
