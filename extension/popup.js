@@ -58,8 +58,8 @@ function insertAndClose() {
   let message = {insertText: getSelected().text()};
   chrome.tabs.query({active: true, currentWindow: true}, tabs => {
     chrome.tabs.sendMessage(tabs[0].id, message);
+    window.close();
   });
-  window.close();
 }
 
 $input.on('keyup', (e) => {
