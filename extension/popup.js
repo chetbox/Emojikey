@@ -95,3 +95,7 @@ $input.on('keyup', (e) => {
     $results.append($searchResults);
   });
 });
+
+$('a.about').on('click', () => {
+  chrome.tabs.create({url: chrome.extension.getURL('hello.html')});
+});

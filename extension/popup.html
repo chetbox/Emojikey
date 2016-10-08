@@ -5,7 +5,7 @@
       html, body {
         background: #fff;
         width: 434px;
-        height: 150px;
+        height: 160px;
         color: #555;
         font-family: 'Helvetica', sans-serif;
         font-weight: 100;
@@ -87,11 +87,22 @@
         0%   {opacity: 0;}
         100% {opacity: 1;}
       }
+
+      #about {
+        text-align: right;
+        margin: 0.5em 0.8em;
+      }
+
+      a.about {
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
     <div id="emojikey">
-      <span class="search-label">&#x1F50D;</span>
+      <a class="about">
+        <span class="search-label">&#x1F50D;</span>
+      </a>
       <input type="text" placeholder="Search" autofocus>
       <hr>
       <ol class="emojikey-results"></ol>
