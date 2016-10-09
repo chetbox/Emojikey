@@ -2,7 +2,7 @@
   "name" : "Emojikey: Search and type emoji",
   "short_name" : "Emojikey",
   "manifest_version" : 2,
-  "version" : "0.4.7",
+  "version" : "0.4.8",
   "description" : "Search for and type emojis",
   "icons" : {
     "256" : "heart_256.png"

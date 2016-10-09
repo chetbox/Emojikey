@@ -36,6 +36,12 @@ function refreshTab() {
   $input.focus();
 }
 
+let REFRESH_MESSAGE = [
+  'Please ',
+  $('<a>').text('refresh').on('click', refreshTab),
+  ' the page to use Emojikey'
+];
+
 function selectNext() {
   $results.find('.emojikey-selected:not(:last-child)')
     .removeClass('emojikey-selected')
@@ -92,11 +98,7 @@ function insertAndClose() {
       if (success) { // The content script always returns true
         window.close();
       } else {
-        handleError(chrome.runtime.lastError, [
-          'Please ',
-          $('<a>').text('refresh').on('click', refreshTab),
-          ' the page']
-        );
+        handleError(chrome.runtime.lastError, REFRESH_MESSAGE);
       }
     });
   });
@@ -138,4 +140,13 @@ $input.on('keyup', (e) => {
 
 $('a.about').on('click', () => {
   chrome.tabs.create({url: chrome.extension.getURL('hello.html')});
+});
+
+chrome.tabs.query({active: true, currentWindow: true}, tabs => {
+  chrome.tabs.sendMessage(tabs[0].id, {isReady: ''}, ready => {
+    console.log(ready);
+    if (!ready) {
+      handleError(chrome.runtime.lastError, REFRESH_MESSAGE);
+    }
+  });
 });

@@ -29,8 +29,13 @@ function insertText(text) {
 
 chrome.runtime.onMessage.addListener(
   (request, sender, sendResponse) => {
+    if (request.isReady !== undefined) {
+      sendResponse(true);
+      return;
+    }
     if (request.insertText) {
       insertText(request.insertText);
       sendResponse(true);
+      return;
     }
 });
