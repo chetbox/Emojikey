@@ -2,7 +2,8 @@
 
 from lxml import html
 import requests
-from os.path import isfile
+from os.path import isfile, abspath, dirname, isdir
+from os import makedirs
 import re
 import json
 from math import sqrt, log, pow
@@ -10,8 +11,8 @@ from numpy import dot
 from numpy.linalg import norm
 import time
 
-DATA_CACHE_FILE = 'data/full-emoji-list.html'
-OUTPUT_FILE = 'extension/config_resources/emoji-data.json'
+DATA_CACHE_FILE = abspath('./data/full-emoji-list.html')
+OUTPUT_FILE = abspath('./extension/config_resources/emoji-data.json')
 STOP_WORDS = {'with', 'of', 'on', 'the'}
 MODIFIERS = {
     'fitzpatrick': ['\U0001f3fb', '\U0001f3fc', '\U0001f3fd', '\U0001f3fe', '\U0001f3ff']
@@ -32,8 +33,10 @@ def fetch_emojis():
 
     def write_cached(content):
         if DATA_CACHE_FILE:
+            if not isdir(dirname(DATA_CACHE_FILE)):
+                makedirs(dirname(DATA_CACHE_FILE))
             with open(DATA_CACHE_FILE, 'w', encoding='utf-8') as f:
-                f.write(content)
+                f.write(str(content))
 
     if is_cached():
         page = read_cached()
@@ -130,8 +133,10 @@ def save_data(file, data):
         json.dump(data, f)
 
 def load_data(file):
+    if not isdir(dirname(file)):
+        makedirs(dirname(file))
     if isfile(file):
-        with open(OUTPUT_FILE, encoding='utf-8') as f:
+        with open(file, 'r', encoding='utf-8') as f:
             return json.load(f)
 
 def search(query_str, unique_terms, n_docs_with_term, document_vectors, trie, emojis, index):

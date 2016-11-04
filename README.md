@@ -4,6 +4,7 @@
 
 Run
 
+    pip install lxml requests numpy
     python3 emojiscrape.py
 
 Then in Chromium/Chrome enable `Developer mode`, click `Load unpacked extension` then select this folder.
