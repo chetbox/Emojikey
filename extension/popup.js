@@ -89,9 +89,9 @@ function getSelected() {
   return $results.find('.emojikey-selected');
 }
 
-function insertAndClose() {
+function insertAndClose(chars) {
   clearStatus();
-  let message = {insertText: getSelected().text()};
+  let message = {insertText: typeof chars !== "undefined" ? chars : getSelected().text()};
   chrome.tabs.query({active: true, currentWindow: true}, tabs => {
     chrome.tabs.sendMessage(tabs[0].id, message, success => {
       console.log('success', success);
@@ -130,7 +130,7 @@ $input.on('keyup', (e) => {
       .map(
         result => $('<li>').text(result.chars).click(() => {
           _gaq.push(['_trackEvent', 'mouse', 'select', null, getSelected().index()]);
-          insertAndClose();
+          insertAndClose(result.chars);
         })
       )
       .map( ($el, i) => i === 0 ? $el.addClass('emojikey-selected') : $el );
