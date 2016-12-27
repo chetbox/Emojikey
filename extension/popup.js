@@ -1,12 +1,13 @@
 'use strict';
 
 let MAX_RESULTS = 10;
+let MAX_HISTORY_RESULTS = 8;
 let $emojikey = $('#emojikey');
 let $input = $emojikey.find('input[type=text]');
 let $results = $emojikey.find('.emojikey-results');
 let $status = $emojikey.find('#status');
 
-var lastQuery = false;
+var lastQuery = '';
 
 function showErrorStatus(message) {
   $status.addClass('error').append(message);
@@ -89,9 +90,57 @@ function getSelected() {
   return $results.find('.emojikey-selected');
 }
 
+function addToHistory(character) {
+  chrome.storage.sync.get('history', data => {
+    if (!data || !data.history) {
+      data.history = {};
+    }
+    let characterHistory = data.history[character];
+    if (!data.history[character]) {
+      let characterHistory = {usages: 0};
+      data.history[character] = characterHistory;
+    }
+    data.history[character].usages += 1;
+    data.history[character].lastUsed = new Date().getTime();
+
+    chrome.storage.sync.set(data);
+  });
+}
+
+function getHistory(callback) {
+  chrome.storage.sync.get('history', data => {
+    let history = $.map(data.history,
+      (info, character) => ({character: character, info: info})
+    )
+    .sort((a, b) => b.info.lastUsed - a.info.lastUsed)
+    .slice(0, MAX_HISTORY_RESULTS);
+    callback(history);
+  });
+}
+
+function selectFirstResult($el, i) {
+  return i === 0 ? $el.addClass('emojikey-selected') : $el;
+}
+
+function showHistory() {
+  $results.addClass('history');
+  getHistory(history => $results.empty().append(
+    history.map(
+      characterInfo => $('<li>').text(characterInfo.character)
+    )
+    .map(selectFirstResult)
+  ));
+}
+
+function hideHistory() {
+  $results.removeClass('history');
+}
+
 function insertAndClose(chars) {
   clearStatus();
-  let message = {insertText: typeof chars !== "undefined" ? chars : getSelected().text()};
+  chars = typeof chars !== "undefined" ? chars : getSelected().text();
+  addToHistory(chars);
+  let message = {insertText: chars};
   chrome.tabs.query({active: true, currentWindow: true}, tabs => {
     chrome.tabs.sendMessage(tabs[0].id, message, success => {
       console.log('success', success);
@@ -112,12 +161,18 @@ $input.on('keyup', (e) => {
     // Same query as last time, nothing to do
     return;
   }
+
+  _gaq.push(['_trackEvent', 'query', query]);
+
   lastQuery = query;
 
   $results.empty();
 
   if (!query) {
+    showHistory();
     return;
+  } else {
+    hideHistory();
   }
 
   chrome.runtime.sendMessage({query: query}, response => {
@@ -133,7 +188,7 @@ $input.on('keyup', (e) => {
           insertAndClose(result.chars);
         })
       )
-      .map( ($el, i) => i === 0 ? $el.addClass('emojikey-selected') : $el );
+      .map(selectFirstResult);
     $results.append($searchResults);
   });
 });
@@ -144,9 +199,10 @@ $('a.about').on('click', () => {
 
 chrome.tabs.query({active: true, currentWindow: true}, tabs => {
   chrome.tabs.sendMessage(tabs[0].id, {isReady: ''}, ready => {
-    console.log(ready);
     if (!ready) {
       handleError(chrome.runtime.lastError, REFRESH_MESSAGE);
     }
   });
 });
+
+showHistory();
