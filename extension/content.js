@@ -16,14 +16,7 @@ function insertText(text) {
       .textrange('set', textRange.start + text.length, 0);
   } else {
     // contenteditable
-    let range = window.getSelection().getRangeAt(0).cloneRange();
-    range.deleteContents();
-    range.insertNode(document.createTextNode(text));
-
-    let selection = window.getSelection();
-    selection.removeAllRanges();
-    selection.addRange(range);
-    selection.collapseToEnd();
+    document.execCommand('insertText', false, text);
   }
 }
 
