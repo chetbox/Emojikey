@@ -1,6 +1,10 @@
 # Emojikey
 
+An Emoji search function for when you're typing in Chromium/Chrome.
+
 ![EmojiKey screenshot](https://raw.githubusercontent.com/chetbox/Emojikey/master/screenshot.png)
+
+[Download latest](https://github.com/chetbox/Emojikey/releases)
 
 ## How to install
 
