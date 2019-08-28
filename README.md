@@ -1,5 +1,7 @@
 # Emojikey
 
+![EmojiKey screenshot](https://raw.githubusercontent.com/chetbox/Emojikey/master/screenshot.png)
+
 ## How to install
 
 Run
